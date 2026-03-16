@@ -1,156 +1,116 @@
 const canvas = document.getElementById("canvas");
-let ctx = canvas.getContext("2d");
+const ctx = canvas.getContext("2d");
 
-const window_height = window.innerHeight;
-const window_width = window.innerWidth;
+const width = canvas.width;
+const height = canvas.height;
 
-canvas.height = window_height;
-canvas.width = window_width;
+let eliminados = 0;
+const contadorUI = document.getElementById("contador");
 
-canvas.style.background = "#ff8";
+const img = new Image();
+img.src = "assets/img/i.png";
 
-class Circle {
+class Objeto {
 
-constructor(x, y, radius, color, text, speed){
+constructor(){
+this.reset();
+}
 
-this.posX = x;
-this.posY = y;
+reset(){
 
-this.radius = radius;
+this.size = Math.random()*40 + 30;
 
-this.originalColor = color;
-this.color = color;
+this.x = Math.random()*(width-this.size);
 
-this.text = text;
+this.y = -this.size;
 
-this.speed = speed;
-
-this.dx = (Math.random() * 2 - 1) * this.speed;
-this.dy = (Math.random() * 2 - 1) * this.speed;
-
-this.isColliding = false;
+this.speed = Math.random()*2 + 1;
 
 }
 
-draw(context){
+update(globalSpeed){
 
-context.beginPath();
+this.y += this.speed * globalSpeed;
 
-context.strokeStyle = this.color;
+if(this.y > height){
+this.reset();
+}
 
-context.textAlign = "center";
-context.textBaseline = "middle";
-context.font = "20px Arial";
-
-context.fillText(this.text,this.posX,this.posY);
-
-context.lineWidth = 2;
-
-context.arc(this.posX,this.posY,this.radius,0,Math.PI*2,false);
-
-context.stroke();
-context.closePath();
+this.draw();
 
 }
 
-update(context){
+draw(){
 
-this.draw(context);
-
-this.posX += this.dx;
-this.posY += this.dy;
-
-//rebote contra paredes
-if(this.posX + this.radius > window_width || this.posX - this.radius < 0){
-this.dx = -this.dx;
-}
-
-if(this.posY + this.radius > window_height || this.posY - this.radius < 0){
-this.dy = -this.dy;
-}
-
-}
-
-//detección de colisión con rebote
-detectCollision(otherCircle){
-
-let dx = this.posX - otherCircle.posX;
-let dy = this.posY - otherCircle.posY;
-
-let distance = Math.sqrt(dx*dx + dy*dy);
-
-if(distance < this.radius + otherCircle.radius){
-
-this.isColliding = true;
-otherCircle.isColliding = true;
-
-//cambio de dirección
-this.dx = -this.dx;
-this.dy = -this.dy;
-
-otherCircle.dx = -otherCircle.dx;
-otherCircle.dy = -otherCircle.dy;
+ctx.drawImage(img,this.x,this.y,this.size,this.size);
 
 }
 
 }
 
-}
+let objetos = [];
 
-let circles = [];
-
-function generateCircles(n){
+function crearObjetos(n){
 
 for(let i=0;i<n;i++){
 
-let radius = Math.random()*30+20;
-
-let x = Math.random()*(window_width-radius*2)+radius;
-let y = Math.random()*(window_height-radius*2)+radius;
-
-let color = `#${Math.floor(Math.random()*16777215).toString(16)}`;
-
-let speed = Math.random()*4+1; //velocidad entre 1 y 5
-
-let text = `C${i+1}`;
-
-circles.push(new Circle(x,y,radius,color,text,speed));
+objetos.push(new Objeto());
 
 }
+
+}
+
+canvas.addEventListener("click",function(e){
+
+const rect = canvas.getBoundingClientRect();
+
+let mouseX = e.clientX - rect.left;
+let mouseY = e.clientY - rect.top;
+
+objetos.forEach(obj=>{
+
+if(
+mouseX > obj.x &&
+mouseX < obj.x + obj.size &&
+mouseY > obj.y &&
+mouseY < obj.y + obj.size
+){
+
+eliminados++;
+
+contadorUI.textContent = "Eliminadas: " + eliminados;
+
+obj.reset();
+
+}
+
+});
+
+});
+
+function velocidadGlobal(){
+
+if(eliminados > 15){
+return 3.5;
+}
+
+if(eliminados > 10){
+return 2.2;
+}
+
+return 1.4;
 
 }
 
 function animate(){
 
-ctx.clearRect(0,0,window_width,window_height);
+ctx.clearRect(0,0,width,height);
 
-//reset colisiones
-circles.forEach(circle=>{
-circle.isColliding = false;
-circle.color = circle.originalColor;
-});
+let velocidad = velocidadGlobal();
 
-//comparación entre círculos
-for(let i=0;i<circles.length;i++){
+objetos.forEach(obj=>{
 
-for(let j=i+1;j<circles.length;j++){
-
-circles[i].detectCollision(circles[j]);
-
-}
-
-}
-
-//flash azul
-circles.forEach(circle=>{
-
-if(circle.isColliding){
-
-circle.color = "#0000FF";
-
-}
-
-circle.update(ctx);
+obj.update(velocidad);
 
 });
 
@@ -158,6 +118,8 @@ requestAnimationFrame(animate);
 
 }
 
-generateCircles(20);
+crearObjetos(20);
 
+img.onload = function(){
 animate();
+};

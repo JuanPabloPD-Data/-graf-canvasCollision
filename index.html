@@ -1,11 +1,101 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <title>Colision 2D</title>
-</head>
-<body onload="draw()">
-    <canvas id="canvas"></canvas>
 
-    <script src="colision.js"></script>
+<head>
+<meta charset="UTF-8">
+<title>Juego Canvas</title>
+
+<style>
+
+/* FONDO GENERAL */
+
+body{
+
+margin:0;
+height:100vh;
+
+display:flex;
+justify-content:center;
+align-items:center;
+
+font-family:Arial;
+
+/* fondo grande */
+background-image:url("assets/img/w.jpg");
+background-size:cover;
+background-position:center;
+
+}
+
+/* CONTENEDOR DEL JUEGO */
+
+#gameContainer{
+
+position:relative;
+
+width:1100px;
+height:600px;
+
+border-radius:12px;
+
+overflow:hidden;
+
+box-shadow:0 20px 50px rgba(0,0,0,0.6);
+
+}
+
+/* CANVAS */
+
+canvas{
+
+width:100%;
+height:100%;
+
+/* imagen donde caen los objetos */
+background-image:url("assets/img/w2.jpg");
+background-size:cover;
+background-position:center;
+
+}
+
+/* CONTADOR */
+
+#contador{
+
+position:absolute;
+
+top:20px;
+right:25px;
+
+padding:10px 18px;
+
+background:rgba(0,0,0,0.65);
+
+color:white;
+
+font-size:22px;
+
+border-radius:8px;
+
+font-weight:bold;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="gameContainer">
+
+<canvas id="canvas" width="1100" height="600"></canvas>
+
+<div id="contador">Eliminadas: 0</div>
+
+</div>
+
+<script src="colision.js"></script>
+
 </body>
 </html>
